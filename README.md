@@ -35,6 +35,9 @@ var htmlElms = [
     html: '<p>Body <img src="lol.jpg" /></p>'
   }
 ]
+
+var app = new HTMLHyperDrive(document.getElementById('container'), htmlElms);
+app.startScene();
 ```
 
 will render 3 stream elements with the provided height, width, and markup.
