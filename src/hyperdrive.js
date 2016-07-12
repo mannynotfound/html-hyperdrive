@@ -1,56 +1,88 @@
-function Hyperdrive(container, nodes) {
+function Hyperdrive(container, nodes, cfg) {
   this.container = container;
   this.nodes = nodes;
+  this.cfg = cfg;
   this.camera = {};
   this.scene = {};
   this.renderer = {};
   this.objects = [];
   this.paused = false;
   this.moveSpeed = 3;
+  this.zDepth = cfg.zDepth || 20000;
+  this.zoomInCb = cfg.zoomInCb || function(){};
+  this.zoomOutCb = cfg.zoomOutCb || function(){};
 }
 
 Hyperdrive.prototype = {
 
   'renderNodes': function(nodes) {
-    nodes.forEach(this.addHyperdriveItem.bind(this));
+    nodes.forEach(this.addObject.bind(this));
   },
 
-  'tweenIn': function(obj) {
+  'randomizeEnd': function(end) {
+    var randDir = Math.round(Math.random() * 1);
+    if (randDir === 1) {
+      end = -(end);
+    }
+
+    return end;
+  },
+
+  'tweenIn': function(obj, cb) {
     new TWEEN.Tween(obj.position)
       .to({ y: Math.random() * 2000 - 1000 }, 2000)
       .easing(TWEEN.Easing.Exponential.Out)
+      .onComplete(cb || function(){})
       .start();
   },
 
-  'createElement': function(childNode) {
-    var el = document.createElement('div');
-    el.className = 'stream-element';
-    el.innerHTML += childNode.html;
-    el.style.width = childNode.width + 'px';
-    el.style.height = childNode.height + 'px';
+  'tweenOut': function(obj, cb) {
+    var end = this.randomizeEnd(this.zDepth);
+
+    new TWEEN.Tween(obj.position)
+      .to({ y: end }, 15000)
+      .easing(TWEEN.Easing.Exponential.Out)
+      .onComplete(cb || function(){})
+      .start();
+  },
+
+  'setElement': function(el, options) {
+    el.innerHTML = options.html;
+
+    Object.keys(options.style).forEach(function(s) {
+      el.style[s] = options.style[s];
+    });
 
     return el;
   },
 
-  'createObject': function(el) {
+  'createObject': function(el, idx) {
     var obj = new THREE.CSS3DObject(el);
+    obj.name = 'stream_element_' + idx;
     obj.position.x = Math.random() * 4000 - 2000;
-    obj.position.y = 3000;
-    obj.position.z = Math.random() * -5000;
+    obj.position.y = this.randomizeEnd(3000);
+    obj.position.z = Math.random() * -this.zDepth;
 
     return obj;
   },
 
-  'addHyperdriveItem': function(childNode) {
+  'addObject': function(options, idx) {
+    if (!idx) {
+      idx = this.objects.length;
+    }
     // create CSS3D object
-    var el = this.createElement(childNode);
-    var obj = this.createObject(el);
+    var el = document.createElement('div');
+    el.className = 'stream-element';
+    el = this.setElement(el, options);
+    var obj = this.createObject(el, idx);
     var self = this;
+
     el.addEventListener('click', function(event) {
       event.stopPropagation();
       self.paused = true;
 
       var prev = obj.position.z + 400;
+      var counter = 0;
 
       new TWEEN.Tween(self.camera.position)
         .to({ x: obj.position.x, y: obj.position.y - 25 }, 1500)
@@ -63,9 +95,14 @@ Hyperdrive.prototype = {
           self.move(this.value - prev);
           prev = this.value;
         })
+        .onComplete(function() {
+          self.zoomInCb(obj)
+        })
         .easing(TWEEN.Easing.Exponential.Out)
         .start();
+
     }, false );
+
 
     // add to scene
     this.scene.add(obj);
@@ -73,9 +110,34 @@ Hyperdrive.prototype = {
     // set props
     el.properties = {
       object: obj
-    }
+    };
     // animate in
     this.tweenIn(obj);
+  },
+
+  'removeObject': function(idx) {
+    if (!idx) {
+      idx = Math.floor(Math.random() * this.objects.length);
+    }
+
+    var obj = this.objects[idx];
+    if (!obj) {
+      return console.warn('INCORRECT IDX OF ', idx, ' PROVIDED');
+    }
+
+    var self = this;
+    this.tweenOut(this.objects[idx], function() {
+      console.log('REMOVING ', idx, ' ', obj.name);
+      obj.element.parentNode.removeChild(obj.element);
+    });
+  },
+
+  'updateObject': function(idx, options) {
+    if (!this.objects[idx]) {
+      return console.warn('INCORRECT IDX OF ', idx, ' PROVIDED');
+    }
+
+    this.setElement(this.objects[idx].element, options);
   },
 
   'move': function(delta) {
@@ -91,14 +153,32 @@ Hyperdrive.prototype = {
   },
 
   'onMouseWheel': function(event) {
-    this.move(event.wheelDelta)
+    this.move(event.wheelDelta);
   },
 
   'onKey': function(event) {
-    console.log(event.keyCode);
-    if (event.keyCode !== 83) return;
+    switch(event.keyCode) {
+      case 83:
+        this.paused = !this.paused;
+        break;
+      case 27:
+        this.zoomOut();
+        break;
+      default:
+        break;
+    }
+  },
 
-    this.paused = !this.paused;
+  'zoomOut': function() {
+    var self = this;
+    new TWEEN.Tween(self.camera.position)
+      .to({ x: 0, y: - 25 }, 1500)
+      .easing(TWEEN.Easing.Exponential.Out)
+      .onComplete(function() {
+        self.paused = false;
+        self.zoomOutCb();
+      })
+      .start();
   },
 
   'onWindowResize': function() {
@@ -120,15 +200,7 @@ Hyperdrive.prototype = {
 
   'attachListeners': function() {
     document.body.addEventListener('mousewheel', this.onMouseWheel.bind(this), false);
-
-    var self = this;
-    document.body.addEventListener('click', function(event) {
-      new TWEEN.Tween(self.camera.position)
-          .to({ x: 0, y: - 25 }, 1500)
-          .easing(TWEEN.Easing.Exponential.Out)
-          .start();
-    }, false);
-
+    document.body.addEventListener('click', this.zoomOut.bind(this), false);
     document.addEventListener('keydown', this.onKey.bind(this), false);
     window.addEventListener('resize', this.onWindowResize, false);
   },
