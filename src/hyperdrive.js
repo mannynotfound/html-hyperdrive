@@ -56,6 +56,10 @@ Hyperdrive.prototype = {
     return el;
   },
 
+  'getElements': function() {
+    return this.objects;
+  },
+
   'createObject': function(el, idx) {
     var obj = new THREE.CSS3DObject(el);
     obj.name = 'stream_element_' + idx;
