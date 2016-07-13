@@ -11,6 +11,7 @@ function Hyperdrive(container, nodes, cfg) {
   this.zDepth = cfg.zDepth || 20000;
   this.zoomInCb = cfg.zoomInCb || function(){};
   this.zoomOutCb = cfg.zoomOutCb || function(){};
+  this.mountCb = cfg.mountCb || function(){};
   this.zoomed = false;
 }
 
@@ -117,6 +118,8 @@ Hyperdrive.prototype = {
     el.properties = {
       object: obj
     };
+
+    this.mountCb(obj);
     // animate in
     this.tweenIn(obj);
   },

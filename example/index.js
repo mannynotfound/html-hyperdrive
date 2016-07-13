@@ -20,6 +20,9 @@ var cfg = {
   },
   zoomOutCb: function() {
     console.log('RETURNED FROM ZOOM');
+  },
+  mountCb: function(obj) {
+    console.log('MOUNTED ', obj);
   }
 };
 

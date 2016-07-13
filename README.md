@@ -66,6 +66,7 @@ Key | Description
 zDepth | The z depth of the total cluster of elements.
 zoomInCb | Callback fired when an element is clicked and "zoomed" into. Will callback with the obj as first parameter.
 zoomOutCb | Callback fired when body is clicked from "zoomed" state and return to all elements.
+mountCb | Callback fired when an element is initially rendered into DOM. Will callback with the obj as first parameter.
 
 
 #### Controls:
