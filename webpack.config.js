@@ -50,6 +50,9 @@ module.exports = {
     }),
     new FaviconsWebpackPlugin(path.resolve(__dirname, './example/favicon.png')),
     loadCSS,
+    new CopyWebpackPlugin([
+      { from: path.resolve(__dirname, './vendors') }
+    ]),
     new ModernizrWebpackPlugin({
       filename: 'modernizr.bundle.js',
       'feature-detects': [

@@ -16,13 +16,13 @@ for (var i = 0; i < 100; i++) {
 var cfg = {
   zDepth: 20000,
   zoomInCb: function(obj) {
-    console.log('ZOOM CB', obj);
+    //console.log('ZOOM CB', obj);
   },
   zoomOutCb: function() {
-    console.log('RETURNED FROM ZOOM');
+    //console.log('RETURNED FROM ZOOM');
   },
   mountCb: function(obj) {
-    console.log('MOUNTED ', obj);
+    //console.log('MOUNTED ', obj);
   }
 };
 
