@@ -11,6 +11,7 @@ function Hyperdrive(container, nodes, cfg) {
   this.zDepth = cfg.zDepth || 20000;
   this.zoomInCb = cfg.zoomInCb || function(){};
   this.zoomOutCb = cfg.zoomOutCb || function(){};
+  this.zoomed = false;
 }
 
 Hyperdrive.prototype = {
@@ -84,6 +85,7 @@ Hyperdrive.prototype = {
     el.addEventListener('click', function(event) {
       event.stopPropagation();
       self.paused = true;
+      self.zoomed = true;
 
       var prev = obj.position.z + 400;
       var counter = 0;
@@ -174,12 +176,15 @@ Hyperdrive.prototype = {
   },
 
   'zoomOut': function() {
+    if (!this.zoomed) return;
+
     var self = this;
     new TWEEN.Tween(self.camera.position)
       .to({ x: 0, y: - 25 }, 1500)
       .easing(TWEEN.Easing.Exponential.Out)
       .onComplete(function() {
         self.paused = false;
+        self.zoomed = false;
         self.zoomOutCb();
       })
       .start();
