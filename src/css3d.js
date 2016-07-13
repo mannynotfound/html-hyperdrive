@@ -93,7 +93,7 @@ module.exports = function addCSS3D(THREE) {
     var getObjectCSSMatrix = function(matrix) {
       var elements = matrix.elements;
 
-      return 'translate3d(-50%,-50%,0) matrix3d(' +
+      var style = 'translate3d(-50%,-50%,0) matrix3d(' +
         epsilon(elements[0]) + ',' +
         epsilon(elements[1]) + ',' +
         epsilon(elements[2]) + ',' +
@@ -112,6 +112,10 @@ module.exports = function addCSS3D(THREE) {
         epsilon(elements[15]) +
       ')';
 
+      return {
+        zIndex: epsilon(elements[14]),
+        style: style,
+      };
     }
 
     this.render = function(scene, camera) {
@@ -126,6 +130,7 @@ module.exports = function addCSS3D(THREE) {
       var objects = _projector.projectScene(scene, camera, false).objects;
 
       var style = "translate3d(0,0," + fov + "px)" + getCameraCSSMatrix(camera.matrixWorldInverse) + " translate3d(" + _widthHalf + "px," + _heightHalf + "px, 0)";
+      var zIndex = 10;
 
       this.cameraElement.style.WebkitTransform = style;
       this.cameraElement.style.MozTransform = style;
@@ -150,15 +155,20 @@ module.exports = function addCSS3D(THREE) {
             _tmpMatrix.elements[11] = 0;
             _tmpMatrix.elements[15] = 1;
 
-            style = getObjectCSSMatrix(_tmpMatrix);
+            var opts = getObjectCSSMatrix(_tmpMatrix);
+            style = opts.style;
+            zIndex = opts.zIndex;
           } else {
-            style = getObjectCSSMatrix(object.matrixWorld);
+            var opts = getObjectCSSMatrix(object.matrixWorld);
+            style = opts.style;
+            zIndex = opts.zIndex;
           }
 
           element.style.WebkitTransform = style;
           element.style.MozTransform = style;
           element.style.oTransform = style;
           element.style.transform = style;
+          element.style.zIndex = Math.floor(zIndex / 10);
 
           if (element.parentNode !== this.cameraElement) {
             this.cameraElement.appendChild(element);
