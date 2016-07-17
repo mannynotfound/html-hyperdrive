@@ -218,7 +218,7 @@ Hyperdrive.prototype = {
     document.body.addEventListener('mousewheel', this.onMouseWheel.bind(this), false);
     document.body.addEventListener('click', this.zoomOut.bind(this), false);
     document.addEventListener('keydown', this.onKey.bind(this), false);
-    window.addEventListener('resize', this.onWindowResize, false);
+    window.addEventListener('resize', this.onWindowResize.bind(this), false);
   },
 
   'startScene': function() {
