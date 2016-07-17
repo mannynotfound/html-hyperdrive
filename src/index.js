@@ -77,7 +77,7 @@ Hyperdrive.prototype = {
   },
 
   'addObject': function(options, idx) {
-    if (typeof idx === undefined) {
+    if (typeof idx === 'undefined') {
       idx = this.objects.length;
     }
     // create CSS3D object
@@ -129,7 +129,7 @@ Hyperdrive.prototype = {
   },
 
   'removeObject': function(idx) {
-    if (typeof idx === undefined) {
+    if (typeof idx === 'undefined') {
       idx = Math.floor(Math.random() * this.objects.length);
     }
 
