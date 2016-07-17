@@ -43,6 +43,7 @@ Hyperdrive.prototype = {
   },
 
   'tweenOut': function(obj, cb) {
+    console.log('TWEENING OUT ', obj)
     var end = this.randomizeEnd(this.zDepth);
 
     new TWEEN.Tween(obj.position)
@@ -142,6 +143,8 @@ Hyperdrive.prototype = {
     this.tweenOut(this.objects[idx], function() {
       console.log('REMOVING ', idx, ' ', obj.name);
       obj.element.parentNode.removeChild(obj.element);
+      var selectedObject = self.scene.getObjectByName(obj.name);
+      self.scene.remove(selectedObject);
     });
   },
 
