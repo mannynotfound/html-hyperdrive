@@ -81,6 +81,7 @@ Hyperdrive.prototype = {
     if (typeof idx === 'undefined') {
       idx = this.objects.length;
     }
+
     // create CSS3D object
     var el = document.createElement('div');
     el.className = 'stream-element';
@@ -149,7 +150,11 @@ Hyperdrive.prototype = {
     var self = this;
     this.tweenOut(this.objects[idx], function() {
       console.log('REMOVING ', idx, ' ', obj.name);
-      obj.element.parentNode.removeChild(obj.element);
+      if (obj.element && obj.element.parentNode) {
+        obj.element.parentNode.removeChild(obj.element);
+      } else {
+        console.warn('NO ELEMENT TO REMOVE !', obj);
+      }
       var selectedObject = self.scene.getObjectByName(obj.name);
       self.scene.remove(selectedObject);
     });
