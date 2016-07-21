@@ -42,11 +42,11 @@ Hyperdrive.prototype = {
       .start();
   },
 
-  'tweenOut': function(obj, cb) {
+  'tweenOut': function(obj, speed, cb) {
     var end = this.randomizeEnd(this.zDepth);
 
     new TWEEN.Tween(obj.position)
-      .to({ y: end }, 15000)
+      .to({ y: end }, speed)
       .easing(TWEEN.Easing.Exponential.Out)
       .onComplete(cb || function(){})
       .start();
@@ -136,6 +136,31 @@ Hyperdrive.prototype = {
     this.tweenIn(obj);
   },
 
+  'removeAll': function(cb) {
+    var self = this;
+    var total = self.objects.length;
+    var counter = 0;
+
+    self.objects.forEach(function(obj, idx) {
+      self.tweenOut(obj, 3000, function() {
+        console.log('REMOVING ', idx, ' ', obj.name);
+
+        if (obj.element && obj.element.parentNode) {
+          obj.element.parentNode.removeChild(obj.element);
+        } else {
+          console.warn('NO ELEMENT TO REMOVE !', obj);
+        }
+        var selectedObject = self.scene.getObjectByName(obj.name);
+        self.scene.remove(selectedObject);
+        counter++;
+
+        if (counter === total) {
+          cb();
+        }
+      });
+    });
+  },
+
   'removeObject': function(idx) {
     if (typeof idx === 'undefined') {
       idx = Math.floor(Math.random() * this.objects.length);
@@ -148,7 +173,7 @@ Hyperdrive.prototype = {
     }
 
     var self = this;
-    this.tweenOut(this.objects[idx], function() {
+    this.tweenOut(this.objects[idx], 15000, function() {
       console.log('REMOVING ', idx, ' ', obj.name);
       if (obj.element && obj.element.parentNode) {
         obj.element.parentNode.removeChild(obj.element);
