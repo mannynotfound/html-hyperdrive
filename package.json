@@ -1,6 +1,6 @@
 {
   "name": "html-hyperdrive",
-  "version": "0.0.10",
+  "version": "0.0.11",
   "description": "CSS3D renderer for a dynamic, interactive flying space environment.",
   "main": "index.js",
   "scripts": {
