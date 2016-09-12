@@ -63,6 +63,8 @@ var app = new HTMLHyperDrive(container, htmlElms, config);
 
 Key | Description
 :------- | :----------
+moveSpeed | Speed for "automove". Default is 3
+xRange | The range of possible x values (affects how close/far elements are from each other)
 zDepth | The z depth of the total cluster of elements.
 zoomInCb | Callback fired when an element is clicked and "zoomed" into. Will callback with the obj as first parameter.
 zoomOutCb | Callback fired when body is clicked from "zoomed" state and return to all elements.

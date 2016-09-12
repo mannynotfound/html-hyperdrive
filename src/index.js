@@ -11,7 +11,8 @@ function Hyperdrive(container, nodes, cfg) {
   this.renderer = {};
   this.objects = [];
   this.paused = false;
-  this.moveSpeed = 3;
+  this.moveSpeed = cfg.moveSpeed || 3;
+  this.xRange = cfg.xRange || 2000;
   this.zDepth = cfg.zDepth || 20000;
   this.zoomInCb = cfg.zoomInCb || function(){};
   this.zoomOutCb = cfg.zoomOutCb || function(){};
@@ -42,11 +43,11 @@ Hyperdrive.prototype = {
       .start();
   },
 
-  'tweenOut': function(obj, speed, cb) {
+  'tweenOut': function(obj, cb) {
     var end = this.randomizeEnd(this.zDepth);
 
     new TWEEN.Tween(obj.position)
-      .to({ y: end }, speed)
+      .to({ y: end }, 15000)
       .easing(TWEEN.Easing.Exponential.Out)
       .onComplete(cb || function(){})
       .start();
@@ -69,7 +70,13 @@ Hyperdrive.prototype = {
   'createObject': function(el, idx) {
     var obj = new THREE.CSS3DObject(el);
     obj.name = 'stream_element_' + idx;
-    obj.position.x = Math.random() * 4000 - 2000;
+
+    // 50/50 change of putting it on left half or right half of screen
+    var poz = Math.random() >= 0.5;
+    var range = Math.random() * this.xRange;
+    var randX = poz ? range : -range;
+    obj.position.x = randX;
+
     obj.position.y = this.randomizeEnd(3000);
     obj.position.z = Math.random() * -this.zDepth;
 
@@ -81,7 +88,6 @@ Hyperdrive.prototype = {
     if (typeof idx === 'undefined') {
       idx = this.objects.length;
     }
-
     // create CSS3D object
     var el = document.createElement('div');
     el.className = 'stream-element';
@@ -136,31 +142,6 @@ Hyperdrive.prototype = {
     this.tweenIn(obj);
   },
 
-  'removeAll': function(cb) {
-    var self = this;
-    var total = self.objects.length;
-    var counter = 0;
-
-    self.objects.forEach(function(obj, idx) {
-      self.tweenOut(obj, 3000, function() {
-        console.log('REMOVING ', idx, ' ', obj.name);
-
-        if (obj.element && obj.element.parentNode) {
-          obj.element.parentNode.removeChild(obj.element);
-        } else {
-          console.warn('NO ELEMENT TO REMOVE !', obj);
-        }
-        var selectedObject = self.scene.getObjectByName(obj.name);
-        self.scene.remove(selectedObject);
-        counter++;
-
-        if (counter === total) {
-          cb();
-        }
-      });
-    });
-  },
-
   'removeObject': function(idx) {
     if (typeof idx === 'undefined') {
       idx = Math.floor(Math.random() * this.objects.length);
@@ -173,13 +154,9 @@ Hyperdrive.prototype = {
     }
 
     var self = this;
-    this.tweenOut(this.objects[idx], 15000, function() {
+    this.tweenOut(this.objects[idx], function() {
       console.log('REMOVING ', idx, ' ', obj.name);
-      if (obj.element && obj.element.parentNode) {
-        obj.element.parentNode.removeChild(obj.element);
-      } else {
-        console.warn('NO ELEMENT TO REMOVE !', obj);
-      }
+      obj.element.parentNode.removeChild(obj.element);
       var selectedObject = self.scene.getObjectByName(obj.name);
       self.scene.remove(selectedObject);
     });
