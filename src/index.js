@@ -83,6 +83,34 @@ Hyperdrive.prototype = {
     return obj;
   },
 
+  'zoomIn': function(idx, event) {
+    event.stopPropagation();
+    this.paused = true;
+    this.zoomed = true;
+    obj = this.objects[idx]
+
+    var self = this;
+    var prev = obj.position.z + 400;
+    var counter = 0;
+
+    new TWEEN.Tween(this.camera.position)
+      .to({ x: obj.position.x, y: obj.position.y - 25 }, 1500)
+      .easing(TWEEN.Easing.Exponential.Out)
+      .start();
+
+    new TWEEN.Tween({ value: prev })
+      .to({ value: 0 }, 2000)
+      .onUpdate(function() {
+        self.move(this.value - prev);
+        prev = this.value;
+      })
+      .onComplete(function() {
+        self.zoomInCb(obj)
+      })
+      .easing(TWEEN.Easing.Exponential.Out)
+      .start();
+  },
+
   'addObject': function(options, idx) {
     console.log('ADDING OBJECT AT ', idx)
     if (typeof idx === 'undefined') {
@@ -93,44 +121,18 @@ Hyperdrive.prototype = {
     el.className = 'stream-element';
     el = this.setElement(el, options);
     var obj = this.createObject(el, idx);
-    var self = this;
-
-    el.addEventListener('click', function(event) {
-      event.stopPropagation();
-      self.paused = true;
-      self.zoomed = true;
-
-      var prev = obj.position.z + 400;
-      var counter = 0;
-
-      new TWEEN.Tween(self.camera.position)
-        .to({ x: obj.position.x, y: obj.position.y - 25 }, 1500)
-        .easing(TWEEN.Easing.Exponential.Out)
-        .start();
-
-      new TWEEN.Tween({ value: prev })
-        .to({ value: 0 }, 2000)
-        .onUpdate(function() {
-          self.move(this.value - prev);
-          prev = this.value;
-        })
-        .onComplete(function() {
-          self.zoomInCb(obj)
-        })
-        .easing(TWEEN.Easing.Exponential.Out)
-        .start();
-
-    }, false );
-
-
-    // add to scene
-    this.scene.add(obj);
 
     if (idx) {
       this.objects[idx] = obj
     } else {
       this.objects.push(obj)
     }
+
+    // add click listener
+    el.addEventListener('click', this.zoomIn.bind(this, idx), false );
+
+    // add to scene
+    this.scene.add(obj);
 
     // set props
     el.properties = {
@@ -203,11 +205,12 @@ Hyperdrive.prototype = {
     if (!this.zoomed) return;
 
     var self = this;
+    self.paused = false;
+
     new TWEEN.Tween(self.camera.position)
       .to({ x: 0, y: - 25 }, 1500)
       .easing(TWEEN.Easing.Exponential.Out)
       .onComplete(function() {
-        self.paused = false;
         self.zoomed = false;
         self.zoomOutCb();
       })
