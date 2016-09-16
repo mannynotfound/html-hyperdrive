@@ -84,7 +84,9 @@ Hyperdrive.prototype = {
   },
 
   'zoomIn': function(idx, event) {
-    event.stopPropagation();
+    if (event) {
+      event.stopPropagation();
+    }
     this.paused = true;
     this.zoomed = true;
     obj = this.objects[idx]
