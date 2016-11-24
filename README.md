@@ -75,11 +75,3 @@ mountCb | Callback fired when an element is initially rendered into DOM. Will ca
 
 * `s` : start/stop auto drift 
 * `esc` : zoom out of zoomed in view
-
-
-# Dependencies
-
-This code was adapted from a "vintage" three.js example that is no longer active using an old version of three. You will have to include
-the `three.js` file in `vendors/` into your site template before this javascript loads. Working on improving this.
-
-__If youre using webpack you can refer to this repo's config for a webpack solution__

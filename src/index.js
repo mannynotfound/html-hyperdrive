@@ -1,6 +1,4 @@
-var addCSS3D = require('./css3d');
-THREE = addCSS3D(THREE);
-var TWEEN = require('tween');
+var CSS3D = require('css3d');
 
 function Hyperdrive(container, nodes, cfg) {
   this.container = container;
@@ -36,9 +34,9 @@ Hyperdrive.prototype = {
   },
 
   'tweenIn': function(obj, cb) {
-    new TWEEN.Tween(obj.position)
+    new CSS3D.TWEEN.Tween(obj.position)
       .to({ y: Math.random() * 2000 - 1000 }, 2000)
-      .easing(TWEEN.Easing.Exponential.Out)
+      .easing(CSS3D.TWEEN.Easing.Exponential.Out)
       .onComplete(cb || function(){})
       .start();
   },
@@ -46,9 +44,9 @@ Hyperdrive.prototype = {
   'tweenOut': function(obj, cb) {
     var end = this.randomizeEnd(this.zDepth);
 
-    new TWEEN.Tween(obj.position)
+    new CSS3D.TWEEN.Tween(obj.position)
       .to({ y: end }, 15000)
-      .easing(TWEEN.Easing.Exponential.Out)
+      .easing(CSS3D.TWEEN.Easing.Exponential.Out)
       .onComplete(cb || function(){})
       .start();
   },
@@ -68,7 +66,7 @@ Hyperdrive.prototype = {
   },
 
   'createObject': function(el, idx) {
-    var obj = new THREE.CSS3DObject(el);
+    var obj = new CSS3D.CSS3DObject(el);
     obj.name = 'stream_element_' + idx;
 
     // 50/50 change of putting it on left half or right half of screen
@@ -95,12 +93,12 @@ Hyperdrive.prototype = {
     var prev = obj.position.z + 400;
     var counter = 0;
 
-    new TWEEN.Tween(this.camera.position)
+    new CSS3D.TWEEN.Tween(this.camera.position)
       .to({ x: obj.position.x, y: obj.position.y - 25 }, 1500)
-      .easing(TWEEN.Easing.Exponential.Out)
+      .easing(CSS3D.TWEEN.Easing.Exponential.Out)
       .start();
 
-    new TWEEN.Tween({ value: prev })
+    new CSS3D.TWEEN.Tween({ value: prev })
       .to({ value: 0 }, 2000)
       .onUpdate(function() {
         self.move(this.value - prev);
@@ -109,7 +107,7 @@ Hyperdrive.prototype = {
       .onComplete(function() {
         self.zoomInCb(obj)
       })
-      .easing(TWEEN.Easing.Exponential.Out)
+      .easing(CSS3D.TWEEN.Easing.Exponential.Out)
       .start();
   },
 
@@ -209,9 +207,9 @@ Hyperdrive.prototype = {
     var self = this;
     self.paused = false;
 
-    new TWEEN.Tween(self.camera.position)
+    new CSS3D.TWEEN.Tween(self.camera.position)
       .to({ x: 0, y: - 25 }, 1500)
-      .easing(TWEEN.Easing.Exponential.Out)
+      .easing(CSS3D.TWEEN.Easing.Exponential.Out)
       .onComplete(function() {
         self.zoomed = false;
         self.zoomOutCb();
@@ -227,7 +225,7 @@ Hyperdrive.prototype = {
 
   'animate': function() {
     requestAnimationFrame(this.animate.bind(this));
-    TWEEN.update();
+    CSS3D.TWEEN.update();
 
     if (!this.paused) {
       this.move(this.moveSpeed);
@@ -245,12 +243,12 @@ Hyperdrive.prototype = {
 
   'startScene': function() {
     console.log('STARTING SCENE')
-    this.camera = new THREE.PerspectiveCamera(
+    this.camera = new CSS3D.PerspectiveCamera(
       75, window.innerWidth / window.innerHeight, 1, 5000
     );
     this.camera.position.y = -25;
-    this.scene = new THREE.Scene();
-    this.renderer = new THREE.CSS3DRenderer();
+    this.scene = new CSS3D.Scene();
+    this.renderer = new CSS3D.CSS3DRenderer();
     this.renderer.setSize(window.innerWidth, window.innerHeight);
     this.renderer.domElement.style.position = 'absolute';
     this.renderer.domElement.style.top = 0;

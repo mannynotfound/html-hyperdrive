@@ -3,7 +3,6 @@ var ExtractTextPlugin = require('extract-text-webpack-plugin');
 var HtmlWebpackPlugin = require('html-webpack-plugin');
 var FaviconsWebpackPlugin = require('favicons-webpack-plugin');
 var loadCSS = new ExtractTextPlugin('build/app.css')
-var CopyWebpackPlugin = require('copy-webpack-plugin');
 var ModernizrWebpackPlugin = require('modernizr-webpack-plugin')
 const BUILD = path.resolve(__dirname, './build');
 
@@ -50,9 +49,6 @@ module.exports = {
     }),
     new FaviconsWebpackPlugin(path.resolve(__dirname, './example/favicon.png')),
     loadCSS,
-    new CopyWebpackPlugin([
-      { from: path.resolve(__dirname, './vendors') }
-    ]),
     new ModernizrWebpackPlugin({
       filename: 'modernizr.bundle.js',
       'feature-detects': [
